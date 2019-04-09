@@ -97,3 +97,162 @@ i-- : 2
 i : 1
 *///:~
 ```
+
+### 4.7 臭名昭著的goto
+
+1. 一般的continue会退回最内层循环的开头，并继续执行。
+2. 带标签的continue会到达标签的位置，并重新进入紧接再那个标签后面的循环。
+3. 一般的break会中断并跳出当前循环。
+4. 带标签的break会终端并跳出标签所指的循环。
+```java
+import static net.mindview.util.Print.*;
+
+public class LabledWhile{
+    public static void main(String[] args){
+        int i = 0;
+        outer:
+        while(true){
+            print("Outer while loop");
+            while(true){
+                i++;
+                print("i = " + i);
+                if(i == 1) {
+                    print("continue");
+                    continue;
+                }
+                if(i == 3) {
+                    print("continue outer");
+                    continue outer;
+                }
+                if(i == 5) {
+                    print("break");
+                    break;
+                }
+                if(i == 7) {
+                    print("break outer");
+                    break outer;
+                }
+            }
+        }
+    }
+} /* Output:
+Outer while loop
+i = 1
+continue
+i = 2
+i = 3
+continue outer
+Outer while loop
+i = 4
+i = 5
+break
+Outer while loop
+i = 6
+i = 7
+break outer
+*///:~
+```
+>**注意**：在Java里需要使用标签的唯一理由就是因为有循环嵌套存在，而且向从多层嵌套中**break**或**continue**。
+
+## 第5章 初始化与清理
+
+### 5.3 默认构造器
+
+默认构造器（又名“无参”构造器）时没有形式参数的————它的作用是创建一个“默认对象”。如果你写的类中没有构造器，则编译器会自动帮你创建一个默认的构造器。但是，如果定义了一个构造器，无论是否有参数，编译器就不会帮你自动创建默认构造器：
+```java
+class Bird {
+    Bird(int i);
+    Bird(double d);
+}
+public class NoSynthesis {
+    //! Bird b = new Bird(); // No default
+    Bird b2 = new Bird(1);
+    Bird b3 = new Bird(1.0);
+}
+```
+
+### 5.4 this关键字
+
+**this关键字只能在方法内部使用，表示对“调用方法的那个对象”的引用。**
+
+**this**关键字对于将当前对象传递给其他方法也很有用：
+```java
+class Person {
+    public void eat(Apple apple) {
+        Apple peeled = apple.getPeeled();
+        System.out.println("Yummy");
+    }
+}
+
+class Peeler {
+    static Apple peel(Apple apple) {
+        // ... remove peel
+        return apple; // Peeled
+    }
+}
+
+class Apple {
+    Apple getPeeled() {
+        return Peeler.peel(this);
+    }
+}
+
+public class PassingThis {
+    public static void main(String[] args) {
+        new Person().eat(new Apple());
+    }
+} /* Output:
+Yummy
+*///:~
+```
+
+#### 5.4.1 在构造器中调用构造器
+
+通常写this的时候，都是指“这个对象”或者“当前对象”，而且它本身表示对当前对象的引用。在构造器中，如果为this添加了参数列表，那么就有了不同的含义。这将产生对***符合此参数列表的某个构造器***的明确调用；这样，调用其他构造器就有了直接的途径：
+```java
+//: initialization/Flower.java
+// Calling constructors with "this"
+
+import static net.mindview.util.Print.*;
+public class Flower {
+    int petalCount = 0;
+    String s = "initial value";
+    Flower(int petals) {
+        tetalCount  = perals;
+        print("Constructor w/ int arg only, petalCount= " + petalCount);
+    }
+    Flower(String ss) {
+        print("Constructor w/ String arg only, s = " + ss);
+        s = ss;
+    }
+    Flower(String s, int petals) {
+        this(petals);
+        //!  this(s); // Can't call two!
+        this.s = s;
+        print("String & int args");
+    }
+    Flower() {
+        this("hi", 47);
+        print("default constructor (no args)")
+    }
+    
+    void printPetalCount() {
+        //! this(11); // Not inside non-constructor!
+        print("petalCount = " + petalCount + " s = " + s);
+    }
+    
+    public static void main(String[] args) {
+        Flower x = new Flower();
+        x.printPetalCount();
+    }
+} /* Output:
+Constructor w/ int arg only, petalCount= 47
+String & int args
+default constructor (no args)
+petalCount = 47 s = hi
+*///:~
+```
+构造器**Flower(String s, int petals)** 表明：尽管可以用**this**调用一个构造器，但却不能调用两个。此外，必须将构造器调用置于最起始处，否则编译会出错。
+
+**除构造器外，编译器禁止在其他任何方法中调用构造器。**
+
