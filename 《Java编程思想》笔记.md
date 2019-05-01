@@ -256,3 +256,85 @@ petalCount = 47 s = hi
 
 **除构造器外，编译器禁止在其他任何方法中调用构造器。**
 
+### 5.7 构造器的初始化
+
+#### 5.7.1 初始化顺序
+
+再类的内部，变量定义的先后顺序决定了初始化的顺序。即使变量定义散步于方法定义之间，它们仍旧会再任何方法（包括构造器）被调用之前得到初始化。
+
+例如：
+```java
+//: initialization/OrderOfInitialization.java
+// Demonstrates initialization order.
+import static net.mindview.util.Print.*;
+
+// When the constructor is called to create a
+// Window object, you'll see a message:
+class Window{
+    Window(int marker){
+        print("Window(" + marker + ")");
+    }
+}
+
+class House {
+    Window w1 = new Window(1); // Before constructor
+    House() {
+        // Show taht we're in the constructor;
+        print("House()");
+        w3 = new Window(33);
+    }
+    Window w2 = new Window(2); // After constructor;
+    void f(){
+        print("f()");
+    }
+    Window w3 = new Window(3); // At end
+}
+
+public static OrderOfInitialization {
+    public static void main(String[] args) {
+        House h = new House();
+        h.f(); // Shows that construction is done
+    }
+} /* Output:
+Window(1)
+Window(2)
+Window(3)
+House()
+Window(33)
+f()
+*///:~
+```
+
+### 5.8 数组的初始化
+
+再Java中可以将一个数组赋值给另一个数组，其实真正做的只是赋值一个引用，就像下面演示的那样：
+```java
+//: initialization/ArraysOfPrimitives.java
+import static net mindview.util.Print.*;
+
+public class ArrayOfPrimitives {
+    public static void main(String[] args) {
+        int[] a1 = { 1, 2, 3, 4, 5 };
+        int[] a2;
+        a2 = a1;
+        for(int i = 0; i < a2.length; i++) {
+            a2[i] = a2[i] + 1;
+        }
+        for(int i = 0; i < a1.length; i++) {
+            print("a1[" + i + "] = " + a1[i]);
+        }
+    }
+} /* Output:
+a1[0] = 2
+a1[1] = 3
+a1[2] = 4
+a1[3] = 5
+a1[4] = 6
+*///:~
+```
+可以看到代码中给出了a1的初始值，a2却没有；再本例中，a2是在后面被赋给另一个数组的。由于a2和a1是相同数组的别名，因此通过a2所做的修改在a1中可以看到。
+
+### 5.9 枚举类型
+
+关于枚举类型的介绍，请参见[这里](https://blog.csdn.net/javazejian/article/details/71333103)
+
