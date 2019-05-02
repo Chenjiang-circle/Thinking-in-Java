@@ -380,3 +380,169 @@ java.util.Vector v = new java.util.Vector();
 ```
 
 ## 第七章 复用类
+
+### 7.1 组合语法
+```java
+//: resing/SprinklerSystem.java
+// Composition for code reuse.
+
+class WaterSource {
+    private String s;
+    WaterSource() {
+        System.out.println("WaterSource");
+        s = "Constructed";
+    }
+    public String toString() {
+        return s;
+    }
+}
+
+public class SprinklerSystem {
+    private String value1, value2, value3, value4;
+    private WaterSource source = new WaterSource();
+    private int i;
+    private float f;
+    public String toString() {
+        return "value1 = " + value1 + " " + "value2 = " + value2 + " " + "value3 = " + value3 + " " + "value4 = " + value4 + "\n" + "i = " + i + " " + "f = " + f + " " + "source = " + source;
+    }
+}
+
+public static void main(String[] args) {
+    SprinklerSystem sprinklers = new SprinklerSystem();
+    System.out.println("sprinklers");
+} /* Output:
+WaterSource()
+value1 = null value2 = null value3 = null value4 = null
+i = 0 f = 0.0 source = Constructed
+```
+每一个非基本类型的对象都有一个toString()方法，而且当编译器需要一个String而你确只有一个对象时，该方法便会被调用，所以在SprinklerSystem.toString()的表达式中：
+```java
+"source = " + source；
+```
+编译器将会得知你想要将一个String对象("source=")同WaterSource相加。
+
+编译器并不时简单地为每一个引用都创建默认对象。如果想初始化引用，可以在代码中的下列位置进行：
+1. 在定义对象的地方。
+2. 在类的构造器中。
+3. 就在正要使用这些对象之前，这种方式称为`惰性初始化`，在生成对象不值得或者不必要每次都成成对象的情况下，这种方式可以减少额外的负担。
+4. 使用实例初始化。
+```java
+class Soap {
+    private String s;
+    Soap {
+        print("Soap()");
+        s = "Constructed";//在类构造器中实例化。
+    }
+    public String toString() {
+        return s;
+    }
+}
+
+public class Bath {
+    private String s1 = "Happy", s2 = "Happy", s3, s4;
+    private Soap castille;
+    private int i;
+    private float toy;
+    public Bath() {
+        print("Inside Bath()");
+        s3 = "Joy";
+        toy = 3.14f;
+        castille = new Soap();
+    }
+    
+    {
+        i = 47;
+    }
+    
+    public String toString() {
+        if(s4 == null){
+            s4 = "Joy";
+        }
+        return "s1 = " + s1 + "\n" + "s2 = " + s2 + "\n" + "s3 = " + s3 + "\n" + "s4 = " + s4 + "\n" + "i = " + i + "\n" + "toy = " + toy + "\n" + "castille = " + castille;
+    }
+    
+    public static void main(String[] args) {
+        Bath b = new Bath();
+        print(b);
+    }
+} /* Output:
+Inside Bath()
+Soap()
+s1 = Happy
+s2 = Happy
+s3 = Joy
+s4 = Joy
+i = 47
+toy = 3.14
+castille = Constructed
+*/ //:~
+```
+
+### 7.2 继承语法
+
+当创建一个类时，总是在继承，除非已经明确指出要从其他类中继承，否则就是在隐式地从Java地标准根类`Object`进行继承。
+
+#### 7.2.1 初始化基类
+
+对基类子对象的正确初始化是至关重要的，而且仅有一种方法来保证这一点：**在构造器中调用基类构造器来执行初始化**。Java会自动在导出类的构造器中插入对基类构造器的调用。
+```java
+import static net.mindview.util.Print.*;
+
+class Art {
+    Art() {
+        print("Art constructor");
+    }
+}
+
+class Drawing extends Art {
+    Drawing() {
+        print("Drawing constructor");
+    }
+}
+
+public class Cartoon extends Drawing {
+    public Cartoon() {
+        print("Cartoon constructor");
+    }
+    public static void main(String[] args) {
+        Cartoon x = new Cartoon();
+    }
+} /* Output:
+Art constructor
+Drawing constructor
+Cartoon constructor
+*///:~
+```
+**带参数的构造器**
+
+如果没有默认的基类构造器，或者想要调用一个带参数的基类构造器，就必须用关键字`super`显示地编写调用基类构造器地语句，并且配以适当地参数列表：
+```java
+import static net.mindview.util.Print.*;
+
+class Game {
+    Game(int i) {
+        print("Game constructor");
+    }
+}
+
+class BoardGame extends Game {
+    BoardGame(int i) {
+        super(i);
+        print("BoardGame constructor");
+    }
+}
+
+public class Chess extends BoardGmae {
+    Chess() {
+        super(i);
+        print("Chess constructor");
+    }
+    public static void main(String[] args) {
+        Chess x = new Chess();
+    }
+} /* Output:
+Game constructor
+BoardGame constructor
+Chess constructor
+*///:~  
+```
