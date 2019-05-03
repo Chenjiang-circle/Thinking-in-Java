@@ -546,3 +546,177 @@ BoardGame constructor
 Chess constructor
 *///:~  
 ```
+
+### 7.3 代理
+
+先看例子：
+```java
+public class SpaceShipControls {
+    void up(int velocity) {}
+    void down(int velocity) {}
+    void left(int velocity) {}
+    void right(int velocity) {}
+    void forward(int velocity) {}
+    void back(int velocity) {}
+    void turboBoost() {}
+}
+// 构造太空船地一种方式是使用继承
+public class SpaceShip extends SpaceShipControls {
+    private String name;
+    public SpaceShip(String name) {
+        this.name = name;
+    }
+    public String toString() {
+        return name;
+    }
+    public static void main(String[] args) {
+        SpaceShip protector = new SpaceShip("NSEA Protector");
+        protector.forward(100);
+    }
+}
+```
+尚书代码中，`Space`并非真正地`SpaceShipControls`类型，即使你能告诉他让他`forward(100)`。更准确地讲，SpaceShip包含SpaceShipControls，与此同时，SpaceShipControls地所有方法在SpaceShip中都暴露了出来。***代理***就很好地解决了此难题：
+```java
+public class SpaceShipDelegation {
+    private String name;
+    private SpaceShipControls controls = new SpaceShipControls();
+    public SpaceShipDelegation(String name) {
+        this.name = name;
+    }
+    
+    public void back(int velocity) {
+        controls.back(velocity);
+    }
+    public void down(int velocity) {
+        controls.down(velocity);
+    }
+    public void forward(int velocity) {
+        controls.forward(velocity);
+    }
+    public void left(int velocity) {
+        controls.left(velocity);
+    }
+    
+    public static void main(String[] args) {
+        SpaceShipDelegation protector = new SpaceShipDelegation("NSEA Protector");
+        protector.forward(100);
+    }
+}
+```
+我们使用代理时可以拥有更多的控制力，因为我们可以选择只提供在成员对象的方法的某个子集。
+
+### 7.6 protected关键字
+
+在实际项目中，经常会想要将某个事物尽可能对这个世界隐藏起来，但仍然允许导出类的成员访问它们。关键字protected就是起这个作用。它指明：
+> “就类的用户而言，这是private的，但对于任何继承此类的导出类或其他任何位于同一包内的类来说，它却是可以访问的。”
+
+#### 7.7.2 再论组合和继承
+
+到底是该用组合还是用继承，一个最清晰的判断办法就是问一问自己**是否需要从新类向基类进行向上转型**。如果必须向上转型，则继承是必要的；但是如果不需要，则应当好好考虑自己是否需要继承。
+
+### 7.8 final关键字
+
+#### 7.8.1 final数据
+
+带有恒定初始值（即，编译期常量）的final static基本类型全用大写字母命名，并且字与字之间用下划线隔开。
+
+
+**空白final**
+
+Java允许生成“空白final”，所谓空白fianl是指被声明为final但未给定初值的域。无论什么情况，编译器都确保空白final在使用前必须被初始化。一个类中的final域可以做到根据对象而有所不同，却又保持其恒定不变的特性。
+```java
+class Poppet {
+    private int i;
+    Poppet(int i1) {
+        i = i1;
+    }
+}
+
+public class BlankFinal {
+    private final int i = 0;
+    private final int j;
+    private final Poppet p;
+    public BlankFinal() {
+        j = 1;
+        p = new Poppet(1);
+    }
+    public BlankFinal(int x) {
+        j = x;
+        p = new Poppet(x);
+    }
+    public static void main(String[] args) {
+        new BlankFinal();
+        new BlankFinal(47);
+    }
+}
+```
+必须在域的定义处或者每个构造器中用表达式对final进行赋值，这正是final域在使用前总是被初始化的原因所在。
+
+**final参数**
+
+Java允许在参数列表中以声明的方式将参数指明为final。这意味着你无法在方法中更改参数引用所指向的对对象。
+
+#### 7.8.2 final方法
+
+使用final方法可以防止任何继承类修改它的含义。这是处于设计的考虑：想要确保在继承中使用方法行为保持不变，并且不会被覆盖。
+
+**final和private关键字**
+
+类中所有的private方法都隐式地指定为final的。
+如果你试图覆盖一个private方法，似乎是奏效的，而且编译器也不会给出错误信息
+```java
+import static net.mindview.util.Print.*;
+
+class WithFinals {
+    private final void f() {
+        print("WithFinals.f()");
+    }
+    private void g() {
+        print("WithFinals.g()");
+    }
+}
+
+class OverridingPrivate extends WithFinals {
+    private final void f() {
+        print("OverridingPrivate.f()");
+    }
+    private void g() {
+        print("OverrindPrivate.g()");
+    }
+}
+
+class OverridingPrivate2 extends OverridingPrivate {
+    private final void f() {
+        print("OverridingPrivate2.f()");
+    }
+    private void g() {
+        print("OverrindPrivate2.g()");
+    }
+}
+
+public class FinalOverridingIllusion {
+    public static void main(String[] args) {
+        OverridingPrivate2 op2 = new OverridingPriavte2();
+        op2.f();
+        op2.g();
+        // you can uocast:
+        OverridingPrivate op = op2;
+        // But you can't call the methods:
+        //!op.f();
+        //!op.g();
+        //Same here:
+        WithFinals wf = op2;
+        //! wf.f();
+        //! wf.g();
+    }
+} /* Output:
+OverridingPrivate2.f();
+OverridingPrivate2.g();
+*///:~
+```
+“覆盖”只有在某方法是基类的接口的一部分时才会出现。如果某方法为private，它就不是基类接口的一部分。它仅是一些藏于类中的程序代码，只不过是具有相同的名称而已。如果在导出类中以相同的名称生成一个public、protected或包访问权限方法的话，该方法就不会产生在基类中出现的“仅具有相同名称”的情况。此时**你并没有覆盖该方法，仅是生成一个新的方法**。
+
+#### 7.8.3 final类
+
+当将某一个类的整体定义为final时，就表明了你不打算继承该类，而且也不允许其他人这么做。
+
