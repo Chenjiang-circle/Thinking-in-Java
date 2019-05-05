@@ -720,3 +720,74 @@ OverridingPrivate2.g();
 
 当将某一个类的整体定义为final时，就表明了你不打算继承该类，而且也不允许其他人这么做。
 
+## 第八章 多态
+
+### 8.3构造器和多态
+
+#### 8.3.1 构造器的调用顺序
+
+下面的例子展示了组合、继承以及多态在构建顺序上的作用：
+```java
+import static net.mindview.util.Print.*;
+
+class Meal {
+    Meal() {
+        print("Meal()");
+    }
+}
+
+class Bread {
+    Bread() {
+        print("Bread()");
+    }
+}
+
+class Cheese {
+    Cheese() {
+        print("Cheese()");
+    }
+}
+
+class Lettuce {
+    Lettuce() {
+        print("Lettuce");
+    }
+}
+
+class Lunch extends Meal {
+    Lunch() {
+        print("Lunch");
+    }
+}
+
+class PortableLunch extends Lunch {
+        portableLunch() {
+            print("PortableLunch()");
+        }
+}
+
+public class Sandwich extends PortableLunch {
+    private Bread b = new Bread();
+    private Cheese c = new Cheese();
+    private Lettuce l = new  Lettuce();
+    public Sandwich() {
+        print("Sandwich");
+    }
+    public static void main(String[] args) {
+        new Sandwich;
+    }
+}/* Output:
+Meal()
+Lunch()
+PortableLunch()
+Bread()
+Cheese()
+Lettuce()
+Sandwich()
+*///:~
+```
+上面复杂的对象调用构造器要遵照下面的顺序：
+1. 调用基类构造器。这个步骤会不断地反复递归下去，首先是构造这种层次结构地根，然后是下一层导出类，等等，直到最底层地导出类。
+2. 按照声明顺序调用成员地初始化方法。
+3. 调用导出类构造器地主体
+
