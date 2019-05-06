@@ -791,3 +791,91 @@ Sandwich()
 2. 按照声明顺序调用成员地初始化方法。
 3. 调用导出类构造器地主体
 
+#### 8.3.3 构造器内部的多态方法的行为
+
+如果在一个构造器的内部调用正在构造的对象的某个动态绑定方法，那么会发生什么呢？
+
+在一般的方法内部，动态绑定的调用是在运行时才决定的。**如果要调用构造器内部的一个动态绑定方法，就要用到那个方法的被覆盖后的定义**。然而，这个调用的效果可能难以预料，因为被覆盖的方法在对象被完全构造之前就会被调用。这可能会造成一些难以发现的隐藏错误。
+```java
+import static net.mindview.util.Print.*;
+
+class Glyph {
+    void draw() {
+        print("Glyph().draw()");
+    }
+    
+    Glyph() {
+        print("Glyph() before draw()");
+        draw();
+        print("Glyph() after draw()");
+    }
+}
+class RoundGlyph extends Glyph {
+    private int radius = 1;
+    RoundGlyph(int r) {
+        radius = r;
+        print("RoundGlyph.RoundGlyph(), radius = " + radius);
+    }
+    void draw() {
+        print("RoundGlyph.draw(), radius = " + radius);
+    }
+}
+
+public class PolyConstructors {
+    public static void main(String[] args) {
+        new RoundGlyph(5);
+    }
+} /* Ouput:
+Glyph() before draw()
+RoundGlyph.draw(), radius = 0
+Glyph() after draw()
+RoundGlyph.RoundGlyph(), radius = 5
+*///:~
+```
+**`Glyph.draw()`方法设计为将要被覆盖**，这种覆盖是在RoundGlyph中发生的。但是GLyph构造器会调用这个方法，结果导致了对RoundGlyph.draw()的调用。如果看到输出结果，我们会发现当Glyph的构造器调用draw()方法时，radius不是默认的值1，而是0。
+
+初始化的实际过程是：
+1. 在其他任何事物发生之前，将分配给对象的存储空间初始化成二进制零。
+2. 如前述那样调用基类构造器。
+3. 按照声明的顺序调用成员的初始化方法。
+4. 调用导出类的构造器主体。
+
+### 8.4 协变返回类型
+
+所谓协变返回类型，表示在导出类中的被覆盖方法可以返回基类方法的返回类型的某种导出类型
+```java
+class Graip {
+    public String toString() {
+        return "Graip";
+    }
+}
+class Wheat extends Graip {
+    public String toString() {
+        return "Wheat";
+    }
+}
+class Mill {
+    Grain process() {
+        return new Graip;
+    }
+}
+class WheatMill extends Mill {
+    Wheat process() {
+        return new Wheat;
+    }
+}
+
+public class CovariantReturn {
+    public static void main(String[] args) {
+        Mill m = new Mill();
+        Graip g = m.process();
+        System.out.print(g);
+        m = new WheatMill();
+        g = m.process();
+        System.out.print(g);
+    }
+} /* Output:
+Graip
+Wheat
+*///:~
+```
