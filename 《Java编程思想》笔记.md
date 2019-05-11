@@ -7,6 +7,7 @@
 - [第五章 初始化与清理](#第五章-初始化与清理)
 - [第六章 访问权限控制](#第六章-访问权限控制)
 - [第七章 复用类](#第七章-复用类)
+- [第八章 多态](#第八章-多态)
 
 ## 第一章 对象导论
 
@@ -879,3 +880,48 @@ Graip
 Wheat
 *///:~
 ```
+### 8.5 用继承进行设计
+
+多态是个巧妙的工具。事实上，当我们使用现成的类来建立新类时，如果首选继承，反而会加重我们的设计负担，使事情变得复杂起来。更好的办法是首选“**组合**”，组合更加灵活，因为它可以动态选择类型；相反，**继承再编译时就需要知道确切类型**。eg：
+```java
+import static net.mindwiew.util.Print.*;
+
+class Actor {
+    public void act();
+}
+class HappyActor extends Actor {
+    public void act() {
+        print("HappyActor");
+    }
+}
+class SadActor extends Actor {
+    public void act() {
+        print("SadActor");
+    }
+}
+
+class Stage {
+    private Actor actor = new HappyActor();
+    public void change() {
+        actor = new SadActor();
+    }
+    public void performPlay() {
+        actor.act();
+    }
+}
+
+public class Transmogrify {
+    public static void main(String[] args) {
+        Stage stage = new Stage();
+        stage.performPlay();
+        stage.change();
+        stage.performPlay();
+    }
+} /* Output:
+HappyActor
+SadActor
+*///:~
+```
+在这里，Stage对象包含一个对Actor的引用，而Actor八日初始化为HappyActor对象。这意味着performPlay()会产生某种特殊行为。既然**引用在运行时可以与另一个不同的对象重新绑定**，所以SadActor对象的引用可以在actor中被替代，然后由performPlay()产生的行为也随之改变。这样一来，我们在运行期间就获得了**动态灵活性**。
+
+一条通则：“**用继承表达行为之间的差异，并用字段表达状态上的变化**”

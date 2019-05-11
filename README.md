@@ -1,2 +1,3 @@
-# Thinking-in-Java
+﻿# Thinking-in-Java
 This is what I have learned from 《Thinking in Java》.
+- 第一章到第八章在“《Java编程思想》笔记”中
