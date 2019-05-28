@@ -133,3 +133,66 @@ public class Adventure {
 注意，`CanFight`接口与`ActionCharacter`类中的`fight()`方法的特征签名一样，而且，在`Hero`中并没有提供`fight()`的定义。即使`Hero`没有显示地提供`fight()`的定义，其定义也因`ActionCharacter`而随之而来，这样就使得创建`Hero`对象成为可能。
 
 使用接口的核心原因：**为了能够向上转型为多个基类型**。使用接口的第二个原因（与使用抽象基类相同）：**防止客户端程序员创建该类的对象。**
+
+### 9.9 接口与工厂
+
+接口是实现多重继承的途径，而生成遵循某个接口的对象的典型方式就是**工厂方法设计模式**。这与直接调用构造器不同，我们在工厂对象上调用的是创建方法，而该工厂对象将生成接口的某个实现的对象。理论上，通过这种方法，**我们的代码将完全与接口的实现分离**，这就使得我们可以透明地将某个实现替换为另一个实现。
+```java
+import static net.mindview.util.Print.*;
+
+interface Service {
+    void method1();
+    void method2();
+}
+
+interface ServiceFactory {
+    Service getService();
+}
+
+class Implementation1 implements Service {
+    Implementation1() {}
+    public void method1() {
+        print("Implementation1 method1");
+    }
+    public void method2() {
+        print("Implementation1 method2");
+    }
+}
+class Implementation1Factory implements ServiceFactory {
+    public Service getService() {
+        return new Implementation1();
+    }
+}
+
+class Implementation2 implements Service {
+    Implementation2() {}
+    public void method1() {
+        print("Implementation2 method1");
+    }
+    public void method2() {
+        print("Implementation2 method2");
+    }
+}
+class Implementation2Factory implements ServiceFactory {
+    public Service getService() {
+        return new Implementation2();
+    }
+}
+
+public class Factories {
+    public static void serviceConsumer(ServiceFactory fact) {
+        Service s = fact.getService();
+        s.method1();
+        s.method2();
+    }
+    
+    public static void main(String[] args) {
+        serviceConsumer(new Implementation1Factory());
+        serviceConsumer(new Implementation2Factory());
+    }
+} /*Output:
+Implementation1 method1
+Implementation1 method2
+Implementation2 method1
+Implementation2 method2
+```
