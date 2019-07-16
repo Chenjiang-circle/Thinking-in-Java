@@ -1,5 +1,7 @@
 ﻿# static关键字的用途
 
+No pains, no gains.
+
 #### 1. static方法
 
 static方法一般称作静态方法。由于静态方法不依赖于任何对象就可以进行访问，因此对于静态变量来说，是没有this的。
