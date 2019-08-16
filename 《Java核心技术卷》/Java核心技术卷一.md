@@ -86,3 +86,10 @@ nextld++;
 3. 如果构造器第一行调用了第二个构造器，则执行第二个构造器主体。
 4. 执行这个构造器的主体。
 
+### 包
+使用包的主要原因是确保类名的唯一性。
+
+import语句不仅可以导入类，还增加了导入静态方法和静态域的功能。例如，如果在源文件的顶部，加上一条指令：`import static java.lang.Sytem.*;`就可以使用System类的静态方法和静态域，而不必加类名前缀：<br>`out.println("Good")`<br>`exit(0)`<br>另外还可以导入特定的方法或域：`inport static java.lang.Sytem.out;`
+
+标记为public的部分可以被任意的类使用；标记为private的部分只能被定义它们的类使用。如果没有制定public或private，这个部分可以被同一个包中的所有方法访问。
+
