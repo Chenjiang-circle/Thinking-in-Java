@@ -150,3 +150,43 @@ if(staff[1] instanceof Manager)
 }
 ```
 包含一个或者多个抽象类的本身必须被声明为抽象的。除了抽象的方法之外，抽象类还可以包含具体的数据和具体方法。类即使不含抽象方法，也可以将类声明为抽象类。抽象类不能被实例化，也就是说，如果将一个类声明为abstract，就不能创建这个类的对象。可以定义一个抽象类的对象变量，但是它只能引用一个非抽象子类的对象。
+
+### Object：所有类的超类
+
+在Java中，只有基本类型不是对象，例如，数值、字符和布尔类型的值不是对象，所有的数组类型，不管是对象数组还是基本类型的数组都扩展了Object类。
+
+Java语言规范要求equals方法具有下面的特征：
+1. 自反性：对于任何非空引用x，x.equals(x)应该返回true。
+2. 对称性：对于任何引用x和y，当且仅当y.equals(x)返回true，x.equals(y)也应该返回true。
+3. 传递性：对于任何引用x、y和z，如果x.equals(y)返回true，y.equals(z)返回true，x.equals(z)也应该返回true。
+4. 一致性：如果x和y引用的对象没有发生变化，反复调用x.equals(y)应该返回相同的结果。
+5. 对于任意非空引用x，x.equals(null)应该返回false。
+
+编写一个完美的equals方法的建议：
+1. 显示参数命名为otherObject，稍后需要将它转换成另一个叫做other的变量。
+2. 检测this与otherObject是否引用同一个对象：<br>`if(this == otherObject) return true;`<br>这条语句只是一个优化。实际上，这是一种经常采用的形式。因为计算一个等式要比一个一个地比较类中的域所付出的代价小得多。
+3. 检测otherObject是否为null，如果为null，返回false。这项检测是很有必要的。<br>`if(otherObject == null) return false;`
+4. 比较this和otherObject是否属于同一个类。如果equals的语义在每个子类中有所改变，就使用getClass检测：<br>`if (getClass != otherObject.getClass()) return false;`<br>如果所有的子类都拥有统一的语义，就使用instanceof检测：<br>`if(!(otherObject instanceof ClassName)) return false;`
+5. 将otherObject转换为对应的类类型变量：<br>`ClassName other = (ClassName) otherObject`
+6. 现在开始对所有需要比较的域进行比较。使用==比较基本类型域，使用equals比较对象域。如果所有的域都匹配，就返回true；否则返回false。
+
+```java
+return field1 == other.field1
+  && Object.equals(field2, other.field2)
+  && ...;
+```
+如果在子类中重新定于equals，就要在其中包含调用super.equals(other)。
+
+散列码（hash code）是由对象导出的一个整数值。散列码是没有规律的。如果x和
+y是两个不同的对象，x.hashCode()与y.hashCode()基本上不会相同。
+
+String类使用下列算法计算散列码：
+```java
+int hash = 0;
+for(int i = 0; i < length(); i++)
+  hash = 31 * hash + charAt(i);
+```
+由于hashCode方法定义再Object类中，因此每个对象都有一个默认的散列码，其值为对象的存储地址。
+
+Object类定义了toString方法，用来打印输出对象所属的类名和散列码。
+
