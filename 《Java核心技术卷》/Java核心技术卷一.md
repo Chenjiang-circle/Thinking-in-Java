@@ -225,3 +225,22 @@ if (a == b)...
 然而，Java实现却有可能 让它成立。如果将经常出现的值包装到同一个对象中，这种比较就有可能成立。这种不确定的结果并不是我们所希望的。解决这个问题的办法是在两个包装器对象比较时调用equals方法。
 
 装箱和拆箱是编译器认可的，而不是虚拟机。编译器在生成类的字节码时，插入必要的方法调用。虚拟机只是执行这些字节码。
+
+## 参数数量可变的方法
+
+用户自己可以定义可变参数的方法，并将参数指定为任意参数类型，甚至是基本类型。下面是一个简单的实例：
+```java
+// 计算若干个数值的最大值
+public static double max(double... values){
+  double largest = Double.NEGATIVE_INFINITY;
+  for (double v : values){
+    if (v > largest){
+      largset = v;
+    }
+  }
+  return largest;
+}
+```
+
+## 枚举类
+
