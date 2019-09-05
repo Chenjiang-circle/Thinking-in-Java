@@ -243,4 +243,31 @@ public static double max(double... values){
 ```
 
 ## 枚举类
+## 反射
+能够分析类能力的程序称为**反射**。反射机制可以用来：
+- 在运行时分析类的能力。
+- 在运行时查看对象，例如，编写一个toString方法供所有类使用。
+- 实现通用的数组操作代码。
+- 利用Method对象，这个对象很想C++中的函数指针。
+
+在程序运行期间，Java运行时系统始终为所有的对象维护一个被称为运行时的**类型标示**。这个信息跟踪着每个对象所属的类。虚拟机利用运行时类型信息选择相应的方法执行。
+
+`java.lang.reflect`包中的Array类允许动态地创建数组。例如，讲这个特性应用到Array类中的copyOf方法实现，这个方法可以用于**扩展已经填满的数组**。
+```java
+public static Object goodCopyOf(Object a, int newLength)
+{
+  Class cl = a.getClass();
+  if (!cl.isArray()) {
+    return null;
+  }
+  Class componentType = cl.getComponentType();
+  int length = Array.getLength(a);
+  Object newArray = Array.newInstance(componentType, newLength);
+  System.arraycopy(a, 0, newArray, 0, Math.min(length, newLength));
+  return newArray;
+}
+```
+为了能够实现上述操作，应该将goodCopyOf的参数声明为Object类型，而不要声明为对象数组（Object[]）。整形数组类型int[]可以被转化成Object，但不能转化成对象数组。
+
+## 继承的设计技巧
 
