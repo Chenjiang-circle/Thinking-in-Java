@@ -48,3 +48,49 @@ map方法会为各个列表调用Person(String)构造器。如果有多个构造
 
 可以用数组类型建立构造器引用。例如，int[]::new是一个构造器引用，它有个参数：数组的长度。这等价于lambda表达式`x->new int[x]`。
 
+### 变量作用域
+
+在lambda表达式中，只能引用值不会改变的变量。例如，下面的做法是不合法的：
+
+```java
+public static void countDown(int start, int delay)
+{
+  ActionListener listener = event ->
+  {
+    start--; //Error:Can't mutate caputured variable
+    SYstem.out.println(start);
+  };
+  new Timer(delay, listener).start();
+}
+```
+
+之所以有这个限制是有原因的，如果在lambda表达式中改变变量，并发执行多个动作是就会不安全。另外，如果在lambda表达式中引用变量，而这个变量可能在外部改变，这也是不合法的。
+
+这里有条规则：**lambda表达式中不会的变量必须是最终变量**。最终变量是指，这个变量在初始化之后就不会再为它赋新值。
+
+lambda表达式的体与嵌套块有相同的作用域。这里同样适用名字冲突和遮蔽的有关规则。在lambda表达式中声明与一个局部变量同名的参数或局部变量是不合法的。
+
+```java
+Path first = Path.get("/usr/bin");
+Comparator<String> comp =
+  (first, second) -> first.length() - second.length();
+  // Error: Variable first already defined
+```
+
+在一个lambda表达式中适用this关键字时，是指创建这个lambda表达式的方法的this参数。例如，
+```java
+public class Application()
+{
+  public void init()
+  {
+    ActionListener listener = event -> 
+    {
+      System.out.println(this.toString());
+      ...
+    }
+    ...
+  }
+}
+```
+
+表达式this.toString()会调用Application对象的toString方法，而不是ActionListener实例的方法。在lambda表达式中，this的适用并没有任何特殊之处。
