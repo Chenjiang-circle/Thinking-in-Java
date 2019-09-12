@@ -94,3 +94,6 @@ public class Application()
 ```
 
 表达式this.toString()会调用Application对象的toString方法，而不是ActionListener实例的方法。在lambda表达式中，this的适用并没有任何特殊之处。
+
+## 内部类
+
