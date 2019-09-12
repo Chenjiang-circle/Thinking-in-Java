@@ -35,3 +35,16 @@ public interface Compareable<T>
 2. 接口冲突。如果一个超类提供看一个默认方法，另一个接口提供了一个同名而且参数类型（不论是否是默认参数）相同的方法，必须覆盖这个方法来解决冲突。
 
 ## 接口示例
+## lambda表达式
+### 构造器引用
+
+构造器引用与方法引用很类似，只不过方法名为new。例如，Person::new是Person构造器的一个引用。哪个构造器呢？这取决于上下文。假设你有一个字符串列表。可以把它转化为一个Person对象数组，为此需要在各个字符串上调用构造器，调用如下：
+```java
+ArrayList<String> names = ...;
+Stream<Person> stream = names.stream().map(Person::new)；
+List<Person> people = stream.collect(Collectors.toList());
+```
+map方法会为各个列表调用Person(String)构造器。如果有多个构造器，编译器会选择有一个String参数的构造器。
+
+可以用数组类型建立构造器引用。例如，int[]::new是一个构造器引用，它有个参数：数组的长度。这等价于lambda表达式`x->new int[x]`。
+
