@@ -118,3 +118,49 @@ public class Application()
 
 ### 局部内部类
 
+局部类不能用public或private访问说明符进行说明。它的作用域被限制在声明这个局部类的块中。
+
+```java
+// 这是一个方法
+public void start() {
+  // 在调用这个方法的时候，才会知道这个内部类的存在
+  class InnerClassName(Type param) {
+    public staic void MethodName(Type param) {
+      ...
+    }
+  }
+}
+```
+
+### 由外部方法访问变量
+
+在Java SE8之前，必须把从局部类访问的局部变量声明为final。有时，final限制显得并不太方便。例如，假设想更新在一个封闭作用域内的计数器。这栗想要统计一下在排列过程中调用compareTo方法的次数。
+```java
+int counter = 0;
+Date[] dates = new Date[100];
+for (int i = 0; i < dates.length; i++) {
+  dates[i] = new Date()
+  {
+    public int compareTo(Date other) {
+      counter++; // Error!!!!!!!
+      return super.compareTo(other);
+    }
+  };
+}
+Arrays.sort(dates);
+System.out.println(counter + " comparisons.");
+```
+
+由于清楚地知道counter需要更新，所以不能将counter声明为final。由于Integer对象是不可变的，所以也不能用Integer代替它。补救的方法是使用一个长度为1的数组：
+```java
+int[] counter = new int[1];
+for (int i = 0; i < dates.length; i++) {
+  dates[i] = new Date()
+  {
+    public int compareTo(Date other) {
+      counter[0]++;
+      return super.compareTo(other);
+    }
+  };
+}
+```
