@@ -164,3 +164,84 @@ for (int i = 0; i < dates.length; i++) {
   };
 }
 ```
+
+### 匿名内部类
+
+加入只创建这个类的一个对象，就不必命名了。这种类被称为**匿名内部类**。
+```Java
+public void start(int interval, boolean beep) {
+  // ActionListener是Java中的一个接口，需要实现它的方法：actionPerformed()
+  ActionListener listener = new ActionListener() {
+    public void actionPerformed(ActionEvent event) {
+      System.out.println("At the tone, the time is " + new Date());
+      if (beep) {
+        Toolkit.getDefaultTookit().beep();
+      }
+    }
+  };
+  Timer t = new Timer(interval, listener);
+  t.start();
+} 
+```
+
+这种语法确实有些难以理解。它的含义是：创建一个实现ActionListener接口的类的新对象，需要实现的方法actionPerformed定义在括号{}中。
+
+通常的语法格式为：
+```java
+new SuperType(construction parameters)
+{
+  inner class methods and data
+}
+```
+
+其中，SuperType可以是ActionListener这样的接口，于是内部类就是要实现这个接口。SuperType也可以是一个类，于是内部类就要扩展它。
+
+由于构造器的名字必须与类名相同，而匿名类没有类名，所以，**匿名类不能有构造器**。取而代之的是，将构造器参数传递给超类构造器。尤其是在内部类实现接口的时候，不能有任何构造器参数。不仅如此，还要像下面这样提供一组括号：
+```java
+new InterfaceType()
+{
+ methods and data
+}
+```
+
+下面对比一下“构造一个类的新对象”与“构造一个扩展了这个类的匿名内部类的对象”之间的差别：
+```java
+Person queen = new Person("Mary"); // a person object
+Person count = new Person("Dracula") {...}; // an object of an inner class extending Preson
+```
+
+如果构造参数的小括号后面跟一个大括号，正在定义的就是匿名内部类。
+
+多年来，Java程序员习惯的做法是用匿名内部类实现事件监听器和其他回调。如今最好还是使用lambda表达式。
+
+<hr>
+
+**“双括号初始化”技巧**：假设你想构造一个数组列表，并将它传递到一个方法：
+```java
+ArrayListL<String> friends = new ArrayList<>();
+friends.add("Harry");
+friends.add("Tony");
+invite(friends);
+```
+
+如果不再需要这个数组列表，最好让它作为一个匿名列表。方法如下：
+```java
+invite(new ArrayList<String>() {{ add("Harry"); add("Tony");}});
+```
+
+注意这里的双括号。外层括号建立了ArrayList的一个匿名子类。内层括号是一个对象构造块。
+
+<hr>
+
+建立一个与超类大体类似（但不完全一样）的匿名子类通常会很方便。不过，对于equals方法要特别小心。曾建议equals方法最好使用以下测试：<br>
+`if（getClass() != other.getClass()） return false;`<br>
+但是对匿名子类做这个测试是失败的。
+
+生成日志或调试消息时，通常希望包含当前类的类名，如：<br>
+`System.err.println("Somethis awful happened in " + getClass());`<br>
+不过。这对静态方法不奏效。毕竟，调用getClass时调用的是this.getClass()，而静态方法没有this。所以应该使用一下表达式：<br>
+`new Object(){}.getClss().getEnclosingClass() // gets class of static method`<br>
+在这里，new Object(){}会建立Object的一个匿名子类的一个匿名对象，getEnclosingClass则得到其外围类，也就是包含这个静态方法的类。
+
+### 静态内部类
+
