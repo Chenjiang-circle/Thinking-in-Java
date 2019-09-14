@@ -245,3 +245,20 @@ invite(new ArrayList<String>() {{ add("Harry"); add("Tony");}});
 
 ### 静态内部类
 
+只有内部类可以声明为static。静态内部类的对象除了没有对生成它的外围类对象的引用特权外，与其他所有内部类完全一样。在下面的例子中，必须使用静态内部类，这是由于内部类对象是在静态方法中构造的：
+```java
+// 这是一个静态方法，该方法需要返回一个调用该方法的类的内部类（Pair）对象
+public static Pair minmax(double[] d) {
+  ...
+  return new Pair(min, max);
+}
+```
+
+如果没有将内部类Pair声明为static，那么编译器将会给出错误报告：没有可用的隐式ClassName类型对象初始化内部类对象。
+
+与常规内部类不同，静态内部类可以有静态域和方法。
+
+声明在接口中的内部类自动成为static和public类。
+
+## 代理
+
